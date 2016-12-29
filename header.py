@@ -25,8 +25,15 @@ header_info3={
 'Upgrade-Insecure-Requests':'1',
 'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36',
 }
-account='account'
-passwd='password'
-secondchoose=['xxxx']
+post_pop=[
+                  'ctl00$MainContent$TabContainer1$tabMsg$btnQuery',\
+                  'ctl00$btnLogout',\
+                  'ctl00$MainContent$TabContainer1$tabSelected$btnGetSub',\
+                  'ctl00$MainContent$TabContainer1$tabSelected$printButton',\
+                  'ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$btnSearchOther',\
+                  'ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$btnSearch'\
+                  ]
+account='d0000000'
+passwd='xxxxxxx'
 firstchoose=['xxxx']
 autodrop=[]
