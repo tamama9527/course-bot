@@ -28,12 +28,14 @@ header_info3={
 post_pop=[
                   'ctl00$MainContent$TabContainer1$tabMsg$btnQuery',\
                   'ctl00$btnLogout',\
+                  'ctl00$MainContent$TabContainer1$tabSelected$gvWishList$ctl02$btnQuota',\
                   'ctl00$MainContent$TabContainer1$tabSelected$btnGetSub',\
                   'ctl00$MainContent$TabContainer1$tabSelected$printButton',\
                   'ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$btnSearchOther',\
                   'ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$btnSearch'\
                   ]
-account='d0000000'
-passwd='xxxxxxx'
-firstchoose=['xxxx']
+#                  
+account='D0XXXXXXX'
+passwd='********'
+firstchoose=['XXXX']
 autodrop=[]
