@@ -10,7 +10,7 @@ import  random
 import getpass
 from BeautifulSoup import BeautifulSoup
 import time
-global class_post={}
+global class_post
 url='https://course.fcu.edu.tw/Login.aspx'
 global s
 s=requests.session()
@@ -33,7 +33,6 @@ def login():
         postdata['ctl00$Login1$RadioButtonList1']='zh-tw'
         cookies={ 'CheckCode':str(captcha)}
         r=s.post(url=url,data=postdata,headers=header.header_info,cookies=cookies)
-        print r.text
         header.header_info3['Origin']=str(r.url[:32]).encode('utf-8')
         header.header_info2['Host']=str(r.url[7:32]).encode('utf-8')
         header.header_info3['Referer']=str(r.url).encode('utf-8')
