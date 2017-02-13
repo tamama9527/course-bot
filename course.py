@@ -49,13 +49,18 @@ def login():
         class_post['ctl00$MainContent$TabContainer1$tabSelected$cpeWishList_ClientState']='false'
         class_post['ctl00_MainContent_TabContainer1_ClientState']='{"ActiveTabIndex":2,"TabState":[true,true,true]}'
         sample=copy.deepcopy(class_post)
-        choose=r.url.split('?guid=')[0]+url_last
-    
+        try:
+            choose=r.url.split('?guid=')[0]+url_last
+        except:
+            class_soup=BeautifulSoup(r.text)
+            msg=class_soup.find('span',{'class':'msg B1'})
         '''except:
             print 'server error' '''
         if r.text.find('驗證碼錯誤')==-1 and r.text.find('帳號或密碼錯誤')==-1 and r.text.find('重新登入')==-1:
             print 'login success'
             break;
+        else:
+            print msg
 def getclass():
     temp=header.firstchoose
     auto=header.autodrop
@@ -102,7 +107,10 @@ def getclass():
                 number= class_soup.findAll('script',text=re.compile("^setTimeout"))[0]
                 number=number.split('：')[1].split('/')[0]
                 #setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
-                print str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0]+'  '+code+u'剩餘人數:'+str(number)+str(temp)
+                print str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8')+' ',
+                print str(code).encode('utf-8')+'剩餘人數:',
+                print str(number).encode('utf-8'),
+                print str(temp).encode('utf-8')
                 #number=number.split('：')[1].split('/')[0]
             except:
                 print code
@@ -137,7 +145,10 @@ if __name__ == '__main__':
     sys.setdefaultencoding('utf-8')
 
     while True:
-        login()
+        try:
+            login()
+        except:
+            print '連線逾時，嘗試重新登入'
         if getclass()==True:
             break
 
