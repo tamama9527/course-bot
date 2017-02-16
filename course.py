@@ -74,7 +74,7 @@ def getclass():
             r = s.get(url=choose, headers=header.header_info)
             class_soup = BeautifulSoup(r.text)
             for e in class_soup.findAll('input', {'value': True}):
-                if 'name' in e:
+                if e.has_key('name'):
                     class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
             class_post = drop_postdata(class_post)
             class_post[
@@ -86,7 +86,7 @@ def getclass():
             class_post.clear()
             class_soup = BeautifulSoup(r.text)
             for e in class_soup.findAll('input', {'value': True}):
-                if 'name' in e:
+                if e.has_key('name'):
                     class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
             class_post = drop_postdata(class_post)
             class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
@@ -103,11 +103,11 @@ def getclass():
             class_soup = BeautifulSoup(r.text)
             try:
                 number = class_soup.findAll('script', text=re.compile("^setTimeout"))[0]
-                number = number.split('：')[1].split('/')[0]
+                number = number.split(u'：')[1].split(u'/')[0]
                 print str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8') + ' ',
                 print str(code).encode('utf-8') + '剩餘人數:',
                 print str(number).encode('utf-8'),
-                print str(temp).encode('utf-8')
+                print [t.encode('utf-8') for t in temp]
             except:
                 print code
             else:
@@ -115,7 +115,7 @@ def getclass():
                     class_soup = BeautifulSoup(r.text)
                     class_post.clear()
                     for e in class_soup.findAll('input', {'value': True}):
-                        if 'name' in e:
+                        if e.has_key('name'):
                             class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
                     class_post = drop_postdata(class_post)
                     class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
