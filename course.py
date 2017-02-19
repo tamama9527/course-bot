@@ -154,7 +154,7 @@ def getclass():
                     class_post['__EVENTARGUMENT']='addCourse$0'
                     class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID']=''
                     r=s.post(url=choose,headers=header.header_info2,data=class_post)
-                    class_soup=BeautiSoup(r.text)
+                    class_soup=BeautifulSoup(r.text)
                     check_msg=class_soup.find('span',{'class':'msg B1'})
                     if check_msg.contents[0] != u'本科目名額目前已額滿 !':
                         print 'you get the class ,'+code+ ', check it.'

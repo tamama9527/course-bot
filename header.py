@@ -35,7 +35,7 @@ post_pop=[
                   'ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$btnSearch'\
                   ]
 #                  
-account='D03000'
-passwd='XXXx'
-firstchoose=['3217','3255']
+account='D0000000'
+passwd='XXXXXX'
+firstchoose=['XXXX']
 autodrop=[]
