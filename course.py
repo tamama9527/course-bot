@@ -1,28 +1,24 @@
-#-*- coding: UTF-8 -*- 
+# -*- coding: UTF-8 -*-
+import json
+
 import header
 import re
 import pytz
 from datetime import datetime
 import requests
 import copy
+import random
 import sys
-import  random
-import getpass
 from BeautifulSoup import BeautifulSoup
 import time
-global class_post
-url='https://course.fcu.edu.tw/Login.aspx'
-global s
-s=requests.session()
-realcode=None
-temp=None
+
 def login():
-    global choose
-    class_post={}
-    postdata={}
+    global choose, sample, class_post, config
+    class_post = {}
+    postdata = {}
     while True:
         try:
-            res=requests.get('https://course.fcu.edu.tw/Login.aspx')
+            res = requests.get('https://course.fcu.edu.tw/Login.aspx')
             soup = BeautifulSoup(res.text)
         except :
             print"something error"
@@ -30,8 +26,8 @@ def login():
         for e in soup.findAll('input',{'value': True}):
             postdata[str(e['name'].encode('utf-8'))]=str(e['value'].encode('utf-8'))
         postdata['ctl00$Login1$vcode']=str(captcha)
-        postdata['ctl00$Login1$UserName']=header.account
-        postdata['ctl00$Login1$Password']=header.passwd
+        postdata['ctl00$Login1$UserName']=config[u"account"]
+        postdata['ctl00$Login1$Password']=config[u"passwd"]
         postdata['ctl00$Login1$RadioButtonList1']='zh-tw'
         cookies={ 'CheckCode':str(captcha)}
         r=s.post(url=url,data=postdata,headers=header.header_info,cookies=cookies)
@@ -51,20 +47,22 @@ def login():
         class_post['ctl00_MainContent_TabContainer1_ClientState']='{"ActiveTabIndex":2,"TabState":[true,true,true]}'
         try:
             choose=r.url.split('?guid=')[0]+url_last
-        except:
-            class_soup=BeautifulSoup(r.text)
-            msg=class_soup.find('span',{'class':'msg B1'})
-        '''except:
-            print 'server error' '''
-        if r.text.find('驗證碼錯誤')==-1 and r.text.find('帳號或密碼錯誤')==-1 and r.text.find('重新登入')==-1:
-            print 'login success'
-            break;
+            pass
+        except AttributeError:
+            class_soup = BeautifulSoup(r.text)
+            msg = class_soup.find('span', {'class': 'msg B1'})
+        if r.text.find(u'驗證碼錯誤') == -1 and r.text.find(u'帳號或密碼錯誤') == -1 and r.text.find(u'重新登入') == -1:
+            print '登入成功'
+            break
         else:
+            print '登入失敗'
             print msg
+
+            
 def check_exist():
-    global temp
+    global temp, config
     class_post={}
-    temp=copy.deepcopy(header.firstchoose)
+    temp=copy.deepcopy(config[u"firstchoose"])
     print "檢查課程是否已存在"
     for code in temp:
         r=s.get(url=choose,headers=header.header_info)
@@ -90,14 +88,16 @@ def check_exist():
         r=s.post(url=choose,headers=header.header_info2,data=class_post)
         r.encoding='utf-8'
         class_soup=BeautifulSoup(r.text)
-        if class_soup.find('p') != None:
+        if class_soup.find('p') is not None:
             print "You already have this "+code
             temp.pop(temp.index(code))
             test_login = class_soup.find('span',{'class':'msg B1'})
     print "檢查完畢"
+    
+    
 def getclass():
     realcode=copy.deepcopy(temp)
-    auto=header.autodrop
+    auto=config[u"autodrop"]
     test_login=None
     count=0
     error=0
@@ -119,7 +119,7 @@ def getclass():
             #餘額檢查
             class_post.clear()
             class_soup = BeautifulSoup(r.text)
-            for e in class_soup.findAll('input',{'value': True}):
+            for e in class_soup.findAll('input', {'value': True}):
                 if e.has_key('name'):
                     class_post[str(e['name'].encode('utf-8'))]=str(e['value'].encode('utf-8'))
             class_post=drop_postdata(class_post)
@@ -144,9 +144,9 @@ def getclass():
                 break
             else:
                 if int(number) > 0:
-                    class_soup=BeautifulSoup(r.text)
+                    class_soup = BeautifulSoup(r.text)
                     class_post.clear()
-                    for e in class_soup.findAll('input',{'value': True}):
+                    for e in class_soup.findAll('input', {'value': True}):
                         if e.has_key('name'):
                             class_post[str(e['name'].encode('utf-8'))]=str(e['value'].encode('utf-8'))
                     class_post=drop_postdata(class_post)
@@ -157,13 +157,15 @@ def getclass():
                     class_soup=BeautifulSoup(r.text)
                     check_msg=class_soup.find('span',{'class':'msg B1'})
                     if check_msg.contents[0] != u'本科目名額目前已額滿 !':
-                        print 'you get the class ,'+code+ ', check it.'
+                        print '你已經選到 ' + code + '，請到課表檢查。'
                         realcode.pop(realcode.index(code))
-        if test_login != None:
+        if test_login is not None:
           if test_login.contents[0] == '您已經在其它地方登入':
               print '您已經在其它地方登入，嘗試幫你重新登入'
               return False
     return True
+
+
 def drop_postdata(inputdata):
     for i in header.post_pop:
         try:
@@ -171,16 +173,28 @@ def drop_postdata(inputdata):
         except:
             pass
     return inputdata
+
+  
 if __name__ == '__main__':
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-
-    while True:
-        try:
-            login()
-        except:
-            print '連線逾時，嘗試重新登入'
-        check_exist()
-        if getclass()==True:
-            break
-
+    class_post = None
+    url = 'https://course.fcu.edu.tw/Login.aspx'
+    s = requests.session()
+    choose = None
+    sample = None
+    config = None
+    realcode=None
+    temp=None
+    with open('config.json') as fin:
+        config = json.load(fin)
+    if config is None:
+        print "Error: 請依據安裝教學建立 config.json"
+    else:
+        while True:
+            try:
+                login()
+            except:
+                print '連線逾時，嘗試重新登入'
+            check_exist()
+            if getclass()==True:
+                break
+    print '選課完畢！'

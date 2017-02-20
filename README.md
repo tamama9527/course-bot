@@ -14,9 +14,9 @@
 ```bash
 pip install -r requirements.txt
 ```
-3. Copy config.json.example as config.json
+3. Copy config.example.json as config.json
 ```bash
-cp config.json.example config.json
+cp config.example.json config.json
 ```
 4. Modify the content to anything what you need.
 
