@@ -33,4 +33,4 @@ post_pop = [
     'ctl00$MainContent$TabContainer1$tabSelected$printButton',
     'ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$btnSearchOther',
     'ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$btnSearch'
-    ]
+]
