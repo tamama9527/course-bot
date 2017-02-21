@@ -121,7 +121,6 @@ def getclass():
             class_post = {}
             class_soup = BeautifulSoup(r.text)
             try:
-                print class_soup.find('script', text=re.compile("^setTimeout"))
                 number = unicode(class_soup.find('script', text=re.compile("^setTimeout")))
                 number = re.search(u'：(\d+)', number).group(1)
                 # setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
@@ -129,7 +128,7 @@ def getclass():
                 b = '選課代碼:' + str(code).encode('utf-8') + ' 剩餘人數:' + number.encode('utf-8') + ' '
                 c = '搶課名單:' + str([x.encode('utf-8') for x in realcode])
                 print a + b + c
-            except IndexError:
+            except:
                 test_login = class_soup.find('span', {'class': 'msg B1'})
                 print code
                 break
