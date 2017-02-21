@@ -57,7 +57,7 @@ def login():
         else:
             print msg
 def check_exist():
-    global temp
+    global temp, config, class_post
     class_post={}
     temp = copy.deepcopy(config[u"firstchoose"])
 
@@ -82,12 +82,13 @@ def check_exist():
         class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID']=''
         r=s.post(url=choose,headers=header.header_info2,data=class_post)
         class_soup=BeautifulSoup(r.text)
-        if class_soup.find('p') != None:
-            print "You already have this "+code
+        if class_soup.find('p') is not None:
+            print "你已經有 " + code + " 這堂課了！"
             temp.pop(temp.index(code))
             test_login = class_soup.find('span',{'class':'msg B1'})
     print "檢查完畢"
 def getclass():
+    global class_post, realcode, temp
     #realcode=copy.deepcopy(header.firstchoose)
     realcode=copy.deepcopy(temp)
     auto=config[u"autodrop"]
@@ -123,7 +124,7 @@ def getclass():
                 number=re.search('：(\d+)',str(number).encode('utf-8')).group(1)
                 #setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
                 a= str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8')+' '
-                b= str(code).encode('utf-8')+'剩餘人數:'+str(number).encode('utf-8')+' '
+                b= '選課代碼:'str(code).encode('utf-8')+'剩餘人數:'+str(number).encode('utf-8')+' '
                 c= "搶課名單:"+str(realcode).encode('utf-8')
                 print a+b+c
             except:
@@ -143,16 +144,14 @@ def getclass():
                     class_soup=BeautifulSoup(r.text)
                     check_msg=class_soup.find('span',{'class':'msg A1'})
                     if check_msg.contents[0] != u'本科目名額目前已額滿 !':
-                        print 'you get the class ,'+code+ ', check it.'
+                        print '你已經選到 ' + code + '，請到課表檢查。'
                         realcode.pop(realcode.index(code))
-        if test_login != None:
+        if test_login is not None:
           if test_login.contents[0] == '您已經在其它地方登入':
               print '您已經在其它地方登入，嘗試幫你重新登入'
               return False
     return True
 if __name__ == '__main__':
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
     class_post = None
     url = 'https://course.fcu.edu.tw/Login.aspx'
     s = requests.session()
