@@ -15,6 +15,8 @@ def login():
     global choose
     class_post={}
     postdata={}
+    url_last = None     
+    msg = None
     while True:
         try:
             res=requests.get('https://course.fcu.edu.tw/Login.aspx')
