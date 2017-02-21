@@ -126,8 +126,8 @@ def getclass():
                 number=re.search('：(\d+)',str(number).encode('utf-8')).group(1)
                 #setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
                 a= str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8')+' '
-                b= '選課代碼:'str(code).encode('utf-8')+'剩餘人數:'+str(number).encode('utf-8')+' '
-                c= "搶課名單:"+str(realcode).encode('utf-8')
+                b= '選課代碼:'+str(code).encode('utf-8')+'剩餘人數:'+str(number).encode('utf-8')+' '
+                c= '搶課名單:'+str(realcode).encode('utf-8')
                 print a+b+c
             except:
                 test_login = class_soup.find('span',{'class':'msg B1'})
