@@ -67,32 +67,44 @@ def login():
             if '目前不是開放時間' == str(msg.contents[0]):
                 raise NameError
 
+
+'''
+這個function是用來做第一次的確認使用者填入的課程代碼是否已經有了
+'''
 def check_exist():
     global temp, config, class_post
     class_post = {}
+    #取得要搶課的課程代碼
     temp = copy.deepcopy(config[u"firstchoose"])
-
     print "檢查課程是否已存在"
     for code in temp:
+        #先取的當前頁面的資料
         r = s.get(url=choose, headers=header.header_info)
         r.text.encode('utf-8')
         class_soup = BeautifulSoup(r.text)
+        #撈取asp.net預設payload
         for e in class_soup.findAll('input', {'value': True, 'type': 'hidden'}):
             class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
         class_post['ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
+        #設定成查詢，之後才能加選
         class_post['ctl00$MainContent$TabContainer1$tabSelected$btnGetSub'] = '查詢'
+        #填入課程代碼
         class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = code
-        # class_post['ctl00_ToolkitScriptManager1_HiddenField']=''
         r = s.post(url=choose, headers=header.header_info2, data=class_post)
         class_soup = BeautifulSoup(r.text)
+        #將要post出去的資料清空
         class_post = {}
+        #撈取asp.net預設payload
         for e in class_soup.findAll('input', {'value': True, 'type': 'hidden'}):
             class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
         class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
+        #設定為加選
         class_post['__EVENTARGUMENT'] = 'addCourse$0'
         class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = ''
+        #送出資料
         r = s.post(url=choose, headers=header.header_info2, data=class_post)
         class_soup = BeautifulSoup(r.text)
+        #檢查是否有已經有這堂課了
         if class_soup.find('p') is not None:
             print "你已經有 " + code.encode('utf-8') + " 這堂課了！"
             temp.pop(temp.index(code))
