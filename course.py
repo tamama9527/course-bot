@@ -4,11 +4,9 @@ import json
 import random
 import re
 from datetime import datetime
-
 import pytz
 import requests
 from BeautifulSoup import BeautifulSoup
-
 import header
 
 
@@ -163,8 +161,9 @@ def getclass():
                     class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = ''
                     r = s.post(url=choose, headers=header.header_info2, data=class_post)
                     class_soup = BeautifulSoup(r.text)
-                    check_msg = class_soup.find('span', {'class': 'msg A1'})
-                    if check_msg.contents[0] != u'本科目名額目前已額滿 !':
+                    check_msg = class_soup.find('span', {'class': 'msg B1'})
+                    print check_msg
+                    if check_msg.contents[0] == u'加選成功':
                         print '你已經選到 ' + code.encode('utf-8') + '，請到課表檢查。'
                         realcode.pop(realcode.index(code))
         if test_login is not None:
