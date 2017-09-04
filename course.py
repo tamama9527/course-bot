@@ -144,12 +144,13 @@ def getclass():
                 # setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
                 a = str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8') + ' '
                 b = '選課代碼:' + str(code).encode('utf-8') + ' 剩餘人數:' + number.encode('utf-8') + ' '
-                c = '搶課名單:' + str([x.encode('utf-8') for x in realcode])
+                c = '選課名單:' + str([x.encode('utf-8') for x in realcode])
                 print a + b + c
             except:
                 test_login = class_soup.find('span', {'class': 'msg B1'})
+                print test_login
                 print code
-                break
+                return False
             else:
                 if int(number) > 0:
                     class_soup = BeautifulSoup(r.text)
@@ -166,10 +167,6 @@ def getclass():
                     if check_msg.contents[0] == u'加選成功':
                         print '你已經選到 ' + code.encode('utf-8') + '，請到課表檢查。'
                         realcode.pop(realcode.index(code))
-        if test_login is not None:
-            if test_login.contents[0] == '您已經在其它地方登入':
-                print '您已經在其它地方登入，嘗試幫你重新登入'
-                return False
     return True
 
 
