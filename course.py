@@ -113,7 +113,7 @@ def check_exist():
 def getclass():
     global class_post, realcode, temp
     realcode = copy.deepcopy(temp)
-    #realcode = copy.deepcopy(config[u'firstchoose'])
+    # realcode = copy.deepcopy(config[u'firstchoose'])
     # auto = config[u"autodrop"]
     test_login = None
     class_post = {}
@@ -164,16 +164,15 @@ def getclass():
                     class_soup = BeautifulSoup(r.text)
                     check_msg = class_soup.find('span', {'class': 'msg A1'})
                     print check_msg
-                    if check_msg != None:
-                        #如果沒有加選成功 error message在msg B1
-                        check_msg = class_soup.find('span',{'class': 'msg B1'})
+                    if check_msg is not None:
+                        # 如果沒有加選成功 error message在msg B1
                         if check_msg.contents[0] == u'加選成功':
                             print '你已經選到 ' + code.encode('utf-8') + '，請到課表檢查。'
                             realcode.pop(realcode.index(code))
+                    else:
+                        check_msg = class_soup.find('span', {'class': 'msg B1'})
                         print check_msg.content[0]
     return True
-
-
 if __name__ == '__main__':
     class_post = None
     url = 'https://course.fcu.edu.tw/Login.aspx'
