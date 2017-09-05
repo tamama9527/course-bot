@@ -16,29 +16,28 @@ def login():
     post_data = {}
     url_last = None
     msg = None
-    soup = None
+    class_soup = None
     while True:
         try:
             res = requests.get('https://course.fcu.edu.tw/Login.aspx')
-            soup = BeautifulSoup(res.text)
+            class_soup = BeautifulSoup(res.text)
         except:
             print"something error"
         #隨機出一個驗證碼
         captcha = random.randint(1000, 9999)
         #撈出asp.net的預設payload
-        for e in soup.findAll('input', {'value': True}):
-            post_data[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+        class_post=Search_Pattern(class_soup)
         #vscode填入產生的驗證碼
-        post_data['ctl00$Login1$vcode'] = str(captcha)
+        class_post['ctl00$Login1$vcode'] = str(captcha)
         #從config取得帳號密碼填入
-        post_data['ctl00$Login1$UserName'] = config[u"account"]
-        post_data['ctl00$Login1$Password'] = config[u"passwd"]
+        class_post['ctl00$Login1$UserName'] = config[u"account"]
+        class_post['ctl00$Login1$Password'] = config[u"passwd"]
         #設定語言
-        post_data['ctl00$Login1$RadioButtonList1'] = 'zh-tw'
+        class_post['ctl00$Login1$RadioButtonList1'] = 'zh-tw'
         #將cookie也填入產生的驗證碼
         cookies = {'CheckCode': str(captcha)}
         #登入
-        res = s.post(url=url, data=post_data, headers=header.header_info, cookies=cookies)
+        res = s.post(url=url, data=class_post, headers=header.header_info, cookies=cookies)
         #取得header
         ##有優化的可能！！！！
         header.header_info3['Origin'] = str(res.url[:32]).encode('utf-8')
@@ -48,8 +47,7 @@ def login():
         for test in soup.findAll('form', {'name': 'aspnetForm', 'id': 'aspnetForm'}):
             url_last = test['action']
         #撈出asp.net的預設payload
-        for e in soup.findAll('input', {'value': True, 'type': 'hidden'}):
-            class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+        class_post=Search_Pattern(class_soup)
         class_post['ctl00_ToolkitScriptManager1_HiddenField'] = ''
         class_post['ctl00$MainContent$TabContainer1$tabSelected$cpeWishList_ClientState'] = 'false'
         class_post['ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
@@ -78,11 +76,11 @@ def check_exist():
     for code in temp:
         #先取的當前頁面的資料
         r = s.get(url=choose, headers=header.header_info)
+        print type(r.text)
         r.text.encode('utf-8')
         class_soup = BeautifulSoup(r.text)
         #撈取asp.net預設payload
-        for e in class_soup.findAll('input', {'value': True, 'type': 'hidden'}):
-            class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+        class_post=Search_Pattern(class_soup)
         class_post['ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
         #設定成查詢，之後才能加選
         class_post['ctl00$MainContent$TabContainer1$tabSelected$btnGetSub'] = '查詢'
@@ -93,8 +91,7 @@ def check_exist():
         #將要post出去的資料清空
         class_post = {}
         #撈取asp.net預設payload
-        for e in class_soup.findAll('input', {'value': True, 'type': 'hidden'}):
-            class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+        class_post=Search_Pattern(class_soup)
         class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
         #設定為加選
         class_post['__EVENTARGUMENT'] = 'addCourse$0'
@@ -121,18 +118,15 @@ def getclass():
     class_soup = BeautifulSoup(r.text)
     while len(realcode) != 0:
         for code in realcode:
-            for e in class_soup.findAll('input', {'value': True, 'type': 'hidden'}):
-                class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
-            class_post[
-                'ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
+            class_post=search_pattern(class_soup)
+            class_post['ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
             class_post['ctl00$MainContent$TabContainer1$tabSelected$btnGetSub'] = '查詢'
             class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = code
             r = s.post(url=choose, headers=header.header_info2, data=class_post)
             # 餘額檢查
             class_post = {}
             class_soup = BeautifulSoup(r.text)
-            for e in class_soup.findAll('input', {'value': True, 'type': 'hidden'}):
-                class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+            class_post=search_pattern(class_soup)
             class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
             class_post['__EVENTARGUMENT'] = 'selquota$0'
             class_post['ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$ddlSpecificSubjects'] = '1'
@@ -155,8 +149,7 @@ def getclass():
                 if int(number) > 0:
                     class_soup = BeautifulSoup(r.text)
                     class_post = {}
-                    for e in class_soup.findAll('input', {'value': True, 'type': 'hidden'}):
-                        class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+                    class_post=Search_Pattern(class_soup)
                     class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
                     class_post['__EVENTARGUMENT'] = 'addCourse$0'
                     class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = ''
@@ -173,6 +166,17 @@ def getclass():
                         check_msg = class_soup.find('span', {'class': 'msg B1'})
                         print check_msg.content[0]
     return True
+
+def Search_Pattern(beauty_text):
+    post={}
+    for e in beauty_text.findAll('input', {'value': True, 'type': 'hidden'}):
+                post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+    return post
+
+'''
+def search_class():
+'''
+
 if __name__ == '__main__':
     class_post = None
     url = 'https://course.fcu.edu.tw/Login.aspx'
