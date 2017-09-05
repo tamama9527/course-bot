@@ -23,26 +23,25 @@ def login():
             class_soup = BeautifulSoup(res.text)
         except:
             print"something error"
-        #隨機出一個驗證碼
+        # 隨機出一個驗證碼
         captcha = random.randint(1000, 9999)
-        #撈出asp.net的預設payload
-        class_post=Search_Pattern(class_soup)
-        #vscode填入產生的驗證碼
+        # 撈出asp.net的預設payload
+        #class_post=Search_Pattern(class_soup)
+        for e in class_soup.findAll('input', {'value': True}):
+            class_post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
+        # vscode填入產生的驗證碼
         class_post['ctl00$Login1$vcode'] = str(captcha)
-        #從config取得帳號密碼填入
+        # 從config取得帳號密碼填入
         class_post['ctl00$Login1$UserName'] = config[u"account"]
         class_post['ctl00$Login1$Password'] = config[u"passwd"]
-        #設定語言
+        # 設定語言
         class_post['ctl00$Login1$RadioButtonList1'] = 'zh-tw'
-        #將cookie也填入產生的驗證碼
+        # 將cookie也填入產生的驗證碼
         cookies = {'CheckCode': str(captcha)}
-        #登入
+        # 登入
         res = s.post(url=url, data=class_post, headers=header.header_info, cookies=cookies)
-        #取得header
-        ##有優化的可能！！！！
-        header.header_info3['Origin'] = str(res.url[:32]).encode('utf-8')
+        # 取得header
         header.header_info2['Host'] = str(res.url[7:32]).encode('utf-8')
-        header.header_info3['Referer'] = str(res.url).encode('utf-8')
         soup = BeautifulSoup(res.text)
         for test in soup.findAll('form', {'name': 'aspnetForm', 'id': 'aspnetForm'}):
             url_last = test['action']
@@ -76,29 +75,13 @@ def check_exist():
     for code in temp:
         #先取的當前頁面的資料
         r = s.get(url=choose, headers=header.header_info)
-        print type(r.text)
         r.text.encode('utf-8')
         class_soup = BeautifulSoup(r.text)
-        #撈取asp.net預設payload
-        class_post=Search_Pattern(class_soup)
-        class_post['ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
-        #設定成查詢，之後才能加選
-        class_post['ctl00$MainContent$TabContainer1$tabSelected$btnGetSub'] = '查詢'
-        #填入課程代碼
-        class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = code
-        r = s.post(url=choose, headers=header.header_info2, data=class_post)
-        class_soup = BeautifulSoup(r.text)
-        #將要post出去的資料清空
+        class_post = Search_Pattern(class_soup)
+        class_soup = Search_Class(session=s,search_url=choose,search_header=header.header_info2,post_data=class_post,code=code)
         class_post = {}
-        #撈取asp.net預設payload
-        class_post=Search_Pattern(class_soup)
-        class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
-        #設定為加選
-        class_post['__EVENTARGUMENT'] = 'addCourse$0'
-        class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = ''
-        #送出資料
-        r = s.post(url=choose, headers=header.header_info2, data=class_post)
-        class_soup = BeautifulSoup(r.text)
+        class_post = Search_Pattern(class_soup)
+        class_soup = Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
         #檢查是否有已經有這堂課了
         if class_soup.find('p') is not None:
             print "你已經有 " + code.encode('utf-8') + " 這堂課了！"
@@ -118,43 +101,29 @@ def getclass():
     class_soup = BeautifulSoup(r.text)
     while len(realcode) != 0:
         for code in realcode:
-            class_post=search_pattern(class_soup)
-            class_post['ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
-            class_post['ctl00$MainContent$TabContainer1$tabSelected$btnGetSub'] = '查詢'
-            class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = code
-            r = s.post(url=choose, headers=header.header_info2, data=class_post)
+            class_post=Search_Pattern(class_soup)
+            class_soup = Search_Class(session=s,search_url=choose,search_header=header.header_info2,post_data=class_post,code=code)
             # 餘額檢查
             class_post = {}
-            class_soup = BeautifulSoup(r.text)
-            class_post=search_pattern(class_soup)
-            class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
-            class_post['__EVENTARGUMENT'] = 'selquota$0'
-            class_post['ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$ddlSpecificSubjects'] = '1'
-            r = s.post(url=choose, headers=header.header_info3, data=class_post)
-            class_post = {}
-            class_soup = BeautifulSoup(r.text)
+            class_post=Search_Pattern(class_soup)
+            class_soup=Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
             try:
                 number = unicode(class_soup.find('script', text=re.compile("^setTimeout")))
                 number = re.search(u'：(\d+)', number).group(1)
                 # setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
-                a = str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8') + ' '
-                b = '選課代碼:' + str(code).encode('utf-8') + ' 剩餘人數:' + number.encode('utf-8') + ' '
-                c = '選課名單:' + str([x.encode('utf-8') for x in realcode])
-                print a + b + c
+                Time_Message  = str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8') + ' '
+                Code_Message = '選課代碼:' + str(code).encode('utf-8') + ' 剩餘人數:' + number.encode('utf-8') + ' '
+                Code_List = '選課名單:' + str([x.encode('utf-8') for x in realcode])
+                print Time_Message + Code_Message + Code_List
             except:
                 test_login = class_soup.find('span', {'class': 'msg B1'})
                 print test_login
                 return False
             else:
                 if int(number) > 0:
-                    class_soup = BeautifulSoup(r.text)
                     class_post = {}
                     class_post=Search_Pattern(class_soup)
-                    class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
-                    class_post['__EVENTARGUMENT'] = 'addCourse$0'
-                    class_post['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = ''
-                    r = s.post(url=choose, headers=header.header_info2, data=class_post)
-                    class_soup = BeautifulSoup(r.text)
+                    class_soup=Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
                     check_msg = class_soup.find('span', {'class': 'msg A1'})
                     print check_msg
                     if check_msg is not None:
@@ -169,13 +138,24 @@ def getclass():
 
 def Search_Pattern(beauty_text):
     post={}
-    for e in beauty_text.findAll('input', {'value': True, 'type': 'hidden'}):
+    for e in beauty_text.findAll('input', {'value': True,'type':'hidden'}):
                 post[str(e['name'].encode('utf-8'))] = str(e['value'].encode('utf-8'))
     return post
 
-'''
-def search_class():
-'''
+def Search_Class(session,search_url,search_header,post_data,code):
+    post_data['ctl00_MainContent_TabContainer1_ClientState'] = '{"ActiveTabIndex":2,"TabState":[true,true,true]}'
+    post_data['ctl00$MainContent$TabContainer1$tabSelected$btnGetSub'] = '查詢'
+    post_data['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = code
+    r = session.post(url=search_url, headers=search_header, data=post_data)
+    return BeautifulSoup(r.text)
+
+def Add_Class(session,add_url,add_header,post_data):
+    post_data['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
+    post_data['__EVENTARGUMENT'] = 'addCourse$0'
+    post_data['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = ''
+    r = session.post(url=add_url, headers=add_header, data=post_data)
+    print r.text
+    return BeautifulSoup(r.text)
 
 if __name__ == '__main__':
     class_post = None
