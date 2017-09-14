@@ -163,7 +163,6 @@ def getclass():
                     r = s.post(url=choose, headers=header.header_info2, data=class_post)
                     class_soup = BeautifulSoup(r.text)
                     check_msg = class_soup.find('span', {'class': 'msg A1'})
-                    print check_msg
                     if check_msg is not None:
                         # 如果沒有加選成功 error message在msg B1
                         if check_msg.contents[0] == u'加選成功':
@@ -192,8 +191,6 @@ if __name__ == '__main__':
                 login()
             except KeyboardInterrupt:
                 print "Bye"
-                break
-            except NameError:
                 break
             except:
                 print '連線逾時，嘗試重新登入'
