@@ -85,7 +85,7 @@ def check_exist():
         html_str = Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
         tree = html.fromstring(html_str)
         #檢查是否有已經有這堂課了
-        if len(tree.xpath('//p')) == 0 :
+        if len(tree.xpath('//p')) != 0 :
             print "你已經有 " + code.encode('utf-8') + " 這堂課了！"
             temp.pop(temp.index(code))
             # test_login = class_soup.find('span', {'class': 'msg B1'})
@@ -95,7 +95,7 @@ def check_exist():
 def getclass():
     global class_post, realcode, temp
     realcode = copy.deepcopy(temp)
-    # realcode = copy.deepcopy(config[u'firstchoose'])
+    #realcode = copy.deepcopy(config[u'firstchoose'])
     # auto = config[u"autodrop"]
     test_login = None
     class_post = {}
@@ -106,15 +106,14 @@ def getclass():
             html_str = Search_Class(session=s,search_url=choose,search_header=header.header_info2,post_data=class_post,code=code)
             # 餘額檢查
             class_post = {}
-            class_post=Search_Pattern(html_str)
-            html_str=Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
-            tree = html.fromstring(html_str)
+            class_post = Search_Pattern(html_str)
+            html_str = Number_Class(session=s,num_url=choose,num_header=header.header_info2,post_data=class_post)
+            class_soup = BeautifulSoup(html_str)
             try:
-                number_str = unicode(tree.xpath('//script/text()'))
                 number = unicode(class_soup.find('script', text=re.compile("^setTimeout")))
                 number = re.search(u'：(\d+)', number).group(1)
                 # setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
-                Time_Message  = str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8') + ' '
+                Time_Message = str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8') + ' '
                 Code_Message = '選課代碼:' + str(code).encode('utf-8') + ' 剩餘人數:' + number.encode('utf-8') + ' '
                 Code_List = '選課名單:' + str([x.encode('utf-8') for x in realcode])
                 print Time_Message + Code_Message + Code_List
@@ -122,13 +121,14 @@ def getclass():
                 test_login = class_soup.find('span', {'class': 'msg B1'})
                 print test_login
                 return False
+            
             else:
                 if int(number) > 0:
                     class_post = {}
                     class_post=Search_Pattern(class_soup)
-                    class_soup=Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
+                    html_str=Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
+                    class_soup = BeautifulSoup(html_str)
                     check_msg = class_soup.find('span', {'class': 'msg A1'})
-                    print check_msg
                     if check_msg is not None:
                         # 如果沒有加選成功 error message在msg B1
                         if check_msg.contents[0] == u'加選成功':
@@ -160,6 +160,13 @@ def Add_Class(session,add_url,add_header,post_data):
     r = session.post(url=add_url, headers=add_header, data=post_data)
     return r.text
 
+def Number_Class(session,num_url,num_header,post_data):
+    class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
+    class_post['__EVENTARGUMENT'] = 'selquota$0'
+    class_post['ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$ddlSpecificSubjects'] = '1'
+    r = s.post(url=num_url, headers=num_header, data=post_data)
+    return r.text
+
 if __name__ == '__main__':
     class_post = None
     url = 'https://course.fcu.edu.tw/Login.aspx'
@@ -175,8 +182,6 @@ if __name__ == '__main__':
         print "Error: 請依據安裝教學建立 config.json"
     else:
         while True:
-            login()
-            '''
             try:
                 login()
             except KeyboardInterrupt:
@@ -196,4 +201,3 @@ if __name__ == '__main__':
                     break
                 else:
                     print '選課完畢！'
-            '''
