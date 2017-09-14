@@ -164,7 +164,7 @@ def Number_Class(session,num_url,num_header,post_data):
     class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
     class_post['__EVENTARGUMENT'] = 'selquota$0'
     class_post['ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$ddlSpecificSubjects'] = '1'
-    r = s.post(url=num_url, headers=num_header, data=post_data)
+    r = session.post(url=num_url, headers=num_header, data=post_data)
     return r.text
 
 if __name__ == '__main__':
