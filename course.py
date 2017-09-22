@@ -125,7 +125,7 @@ def getclass():
             else:
                 if int(number) > 0:
                     class_post = {}
-                    class_post=Search_Pattern(class_soup)
+                    class_post=Search_Pattern(html_str)
                     html_str=Add_Class(session=s,add_url=choose,add_header=header.header_info2,post_data=class_post)
                     class_soup = BeautifulSoup(html_str)
                     check_msg = class_soup.find('span', {'class': 'msg A1'})
@@ -160,12 +160,35 @@ def Add_Class(session,add_url,add_header,post_data):
     r = session.post(url=add_url, headers=add_header, data=post_data)
     return r.text
 
+def Del_Class(session,del_url,del_header,post_data):
+    post_data['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToDel'
+    post_data['__EVENTARGUMENT'] = 'delCourse$0'
+    post_data['ctl00$MainContent$TabContainer1$tabSelected$tbSubID'] = ''
+    r = session.post(url=del_url,headers=del_header,data=post_data)
+    return r.text
+
 def Number_Class(session,num_url,num_header,post_data):
     class_post['__EVENTTARGET'] = 'ctl00$MainContent$TabContainer1$tabSelected$gvToAdd'
     class_post['__EVENTARGUMENT'] = 'selquota$0'
     class_post['ctl00$MainContent$TabContainer1$tabCourseSearch$wcCourseSearch$ddlSpecificSubjects'] = '1'
     r = session.post(url=num_url, headers=num_header, data=post_data)
     return r.text
+
+def first():
+    logo='''
+ _____                            ______       _   
+/  __ \                           | ___ \     | |  
+| /  \/ ___  _   _ _ __ ___  ___  | |_/ / ___ | |_ 
+| |    / _ \| | | | '__/ __|/ _ \ | ___ \/ _ \| __|
+| \__/\ (_) | |_| | |  \__ \  __/ | |_/ / (_) | |_ 
+ \____/\___/ \__,_|_|  |___/\___| \____/ \___/ \__|
+    '''
+    print "============================================================"
+    print logo
+    print "Author:Tamama"
+    print "Github:https://github.com/tamama9527/"
+    print "============================================================"
+
 
 if __name__ == '__main__':
     class_post = None
