@@ -75,7 +75,7 @@ def check_exist():
     #取得要搶課的課程代碼
     temp = copy.deepcopy(config[u"firstchoose"])
     print "檢查課程是否已存在"
-    for code in temp:
+    for code in config[u'firstchoose']:
         #先取的當前頁面的資料
         r = s.get(url=choose, headers=header.header_info)
         r.text.encode('utf-8')
@@ -172,6 +172,21 @@ def getclass():
                         check_msg = class_soup.find('span', {'class': 'msg B1'})
                         print check_msg.content[0]
     return True
+
+def first():
+    logo='''
+ _____                            ______       _   
+/  __ \                           | ___ \     | |  
+| /  \/ ___  _   _ _ __ ___  ___  | |_/ / ___ | |_ 
+| |    / _ \| | | | '__/ __|/ _ \ | ___ \/ _ \| __|
+| \__/\ (_) | |_| | |  \__ \  __/ | |_/ / (_) | |_ 
+ \____/\___/ \__,_|_|  |___/\___| \____/ \___/ \__|
+    '''
+    print "============================================================"
+    print logo
+    print "Author:Tamama"
+    print "Github:https://github.com/tamama9527/"
+    print "============================================================"
 if __name__ == '__main__':
     class_post = None
     url = 'https://course.fcu.edu.tw/Login.aspx'
@@ -181,6 +196,7 @@ if __name__ == '__main__':
     config = None
     realcode = None
     temp = None
+    first()
     with open('config.json') as fin:
         config = json.load(fin)
     if config is None:
