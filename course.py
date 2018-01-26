@@ -113,6 +113,7 @@ def check_exist():
 def getclass():
     global class_post, realcode, temp
     realcode = copy.deepcopy(temp)
+    already_course = ''
     # realcode = copy.deepcopy(config[u'firstchoose'])
     # auto = config[u"autodrop"]
     test_login = None
@@ -144,9 +145,10 @@ def getclass():
                 number = re.search(u'：(\d+)', number).group(1)
                 # setTimeout("alert('剩餘名額/開放名額：1  / 78 ')",200);
                 a = str(pytz.timezone('Asia/Taipei').fromutc(datetime.utcnow())).split('.')[0].encode('utf-8') + ' '
-                b = '選課代碼:' + str(code).encode('utf-8') + ' 剩餘人數:' + number.encode('utf-8') + ' '
-                c = '選課名單:' + str([x.encode('utf-8') for x in realcode])
-                print a + b + c
+                d = '已選:'+already_course+' '
+                c = '選課代碼:' + str(code).encode('utf-8') + ' 剩餘人數:' + number.encode('utf-8') + ' '
+                d = '選課名單:' + str([x.encode('utf-8') for x in realcode])
+                print a + b + c + d
             except:
                 test_login = class_soup.find('span', {'class': 'msg B1'})
                 print test_login
@@ -167,6 +169,7 @@ def getclass():
                         # 如果沒有加選成功 error message在msg B1
                         if check_msg.contents[0] == u'加選成功':
                             print '你已經選到 ' + code.encode('utf-8') + '，請到課表檢查。'
+                            already_course = already_course+code.encode('utf-8')+','
                             realcode.pop(realcode.index(code))
                     else:
                         check_msg = class_soup.find('span', {'class': 'msg B1'})
@@ -187,6 +190,7 @@ def first():
     print "Author:Tamama"
     print "Github:https://github.com/tamama9527/"
     print "============================================================"
+
 if __name__ == '__main__':
     class_post = None
     url = 'https://course.fcu.edu.tw/Login.aspx'
